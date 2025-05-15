@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhagavad Gita - Interactive Reader</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #b01a4a 0%, #2b3591 100%);
+            --primary-gradient: linear-gradient(135deg,#D4145A 0%, #d48504 100%);
+          
+           
+            --secondary-gradient: linear-gradient(135deg, #cf0718 0%, #ad6500 100%);
+            --accent-color: #8a5cf5;
+            --accent-color: linear-gradient(135deg, #cf9d55 0%, #f97f56 100%);
+            --text-color: #333;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --sidebar-bg: #f0f0f5;
+            --border-color: #e1e4e8;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+            --verse-bg: #f5f7ff;
+            --verse-hover: #eef0fa;
+            --highlight-color: #ffcc80;
+        }
+
+        [data-theme="dark"] {
+            --text-color: #e0e0e0;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --sidebar-bg: #1a1a1a;
+            --border-color: #2d2d2d;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            --verse-bg: #252525;
+            --verse-hover: #2a2a2a;
+            --highlight-color: #ff9800;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: var(--transition);
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: var(--primary-gradient);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            gap: 0.5rem;
+        }
+
+        .om-symbol {
+            font-size: 1.8rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            height: 100vh;
+            position: fixed;
+            top: 64px;
+            left: 0;
+            padding-bottom: 80px;
+            transition: var(--transition);
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            font-size: 1.2rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chapter-list {
+            list-style: none;
+        }
+
+        .chapter-item {
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .chapter-link {
+            display: flex;
+            padding: 1rem;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        .chapter-link:hover, .chapter-link.active {
+            background: var(--secondary-gradient);
+        }
+
+        .chapter-link.active {
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .chapter-number {
+            font-weight: bold;
+            margin-right: 0.5rem;
+            min-width: 25px;
+        }
+
+        .chapter-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chapter-title {
+            font-weight: bold;
+        }
+
+        .chapter-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 300px;
+            margin-top: 64px;
+            padding: 2rem;
+            transition: var(--transition);
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 3rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(138, 92, 245, 0.2);
+            border-color: var(--accent-color);
+        }
+
+        .search-icon {
+            position: absolute;
+            top: 50%;
+            left: 1rem;
+            transform: translateY(-50%);
+            color: var(--accent-color);
+            pointer-events: none;
+        }
+
+        .search-button {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .search-button:hover {
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            position: relative;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .tab.active {
+            color: var(--accent-color);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .chapter-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .chapter-title-main {
+            font-size: 2rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .chapter-label {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        .verse-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .verse-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--secondary-gradient);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+
+        .verse-text {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .verse-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .nav-btn:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .bookmark-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            opacity: 0;
+        }
+
+        .verse-container:hover .bookmark-btn {
+            opacity: 1;
+        }
+
+        .bookmark-btn.active {
+            color: #f5b042;
+            opacity: 1;
+        }
+
+        .verse-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        .goto-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .goto-select {
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .goto-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .goto-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Bookmarks Tab */
+        .bookmarks-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .bookmark-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bookmark-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .bookmark-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .bookmark-chapter {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: var(--accent-color);
+        }
+
+        .bookmark-date {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .bookmark-verse {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .bookmark-text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            flex: 1;
+        }
+
+        .bookmark-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            align-items: center;
+        }
+
+        .bookmark-goto {
+            padding: 0.4rem 0.8rem;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        .bookmark-goto:hover {
+            opacity: 0.9;
+        }
+
+        .bookmark-remove {
+            background: none;
+            border: none;
+            color: #ff5252;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: var(--transition);
+        }
+
+        .bookmark-remove:hover {
+            transform: scale(1.1);
+        }
+
+        .bookmarks-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .bookmarks-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .clear-all-btn {
+            padding: 0.5rem 1rem;
+            background: #ff5252;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .clear-all-btn:hover {
+            opacity: 0.9;
+        }
+
+        .no-bookmarks {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        /* Search Results */
+        .search-results {
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .search-results.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .result-count {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .result-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .result-location {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .chapter-info {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .verse-info {
+            opacity: 0.8;
+        }
+
+        .result-text {
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .highlighted {
+            background-color: var(--highlight-color);
+            padding: 0 3px;
+            border-radius: 3px;
+        }
+
+        /* Additional controls */
+        .verse-extra-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .control-btn {
+           
+            gap: 0.3rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .control-btn:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 200;
+                width: 280px;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+
+            .verse-container {
+                padding: 1.5rem;
+            }
+
+            .chapter-title-main {
+                font-size: 1.5rem;
+            }
+
+            .chapter-label {
+                font-size: 1rem;
+            }
+
+            .bookmarks-container {
+                grid-template-columns: 1fr;
+            }
+
+            .mobile-menu-btn {
+                display: block !important;
+            }
+
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 150;
+            }
+
+            .overlay.active {
+                display: block;
+            }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+
+        /* Animations */
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-20px);}
+            60% {transform: translateY(-10px);}
+        }
+
+        .bounce {
+            animation: bounce 1s;
+        }
+
+        @keyframes pulse {
+            0% {transform: scale(1);}
+            50% {transform: scale(1.05);}
+            100% {transform: scale(1);}
+        }
+
+        .pulse {
+            animation: pulse 0.5s;
+        }
+
+        /* Loading animation */
+        .loader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(138, 92, 245, 0.2);
+            border-left-color: var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {transform: rotate(360deg);}
+        }
+
+        /* Text to speech controls */
+        .tts-controls {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .tts-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 50%;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tts-btn:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .tts-btn.active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <div class="logo">
+                <span class="om-symbol">ॐ</span>
+                <span>Bhagavad Gita</span>
+            </div>
+            <div class="header-actions">
+                <button id="theme-toggle" class="icon-btn" title="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="bookmark-menu" class="icon-btn" title="View bookmarks">
+                    <i class="fas fa-bookmark"></i>
+                </button>
+                <button id="mobile-menu-btn" class="mobile-menu-btn" title="Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="container">
+            <div id="overlay" class="overlay"></div>
+            <aside id="sidebar" class="sidebar">
+                <div class="sidebar-header">
+                    <i class="fas fa-book"></i>
+                    <span>Chapters</span>
+                </div>
+                <ul id="chapter-list" class="chapter-list">
+                    <!-- Chapters will be loaded here -->
+                    <div class="loader">
+                        <div class="spinner"></div>
+                    </div>
+                </ul>
+            </aside>
+
+            <main class="main-content">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-input" class="search-input" placeholder="Search verses...">
+                    <button id="search-button" class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab active" data-tab="reading">Reading</div>
+                    <div class="tab" data-tab="bookmarks">Bookmarks</div>
+                </div>
+
+                <div id="search-results" class="search-results">
+                    <div class="results-header">
+                        <span>Search Results</span>
+                        <span class="result-count">0 results</span>
+                    </div>
+                    <div id="results-container">
+                        <!-- Search results will appear here -->
+                    </div>
+                </div>
+
+                <div id="reading-tab" class="tab-content active">
+                    <div id="verse-content">
+                        <!-- Verse content will be loaded here -->
+                        <div class="loader">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+
+                    <div class="verse-navigation">
+                        <div class="goto-container">
+                            <span>Go to verse:</span>
+                            <select id="verse-select" class="goto-select">
+                                <!-- Verse options will be loaded here -->
+                            </select>
+                            <button id="goto-btn" class="goto-btn">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="bookmarks-tab" class="tab-content">
+                    <div class="bookmarks-header">
+                        <h2 class="bookmarks-title">Your Bookmarks</h2>
+                        <button id="clear-all-btn" class="clear-all-btn">
+                            <i class="fas fa-trash"></i>
+                            Clear All
+                        </button>
+                    </div>
+                    <div id="bookmarks-container" class="bookmarks-container">
+                        <!-- Bookmarks will be loaded here -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let gitaData = null;
+        let currentChapter = 1;
+        let currentVerse = 1;
+        let bookmarks = [];
+        let isSpeaking = false;
+        let speechSynthesis = window.speechSynthesis;
+        let speechUtterance = null;
+
+        // DOM Elements
+        const app = document.getElementById('app');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const chapterList = document.getElementById('chapter-list');
+        const verseContent = document.getElementById('verse-content');
+        const verseSelect = document.getElementById('verse-select');
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+        const searchResults = document.getElementById('search-results');
+        const resultsContainer = document.getElementById('results-container');
+        const bookmarksContainer = document.getElementById('bookmarks-container');
+        const themeToggle = document.getElementById('theme-toggle');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const bookmarkMenu = document.getElementById('bookmark-menu');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const clearAllBtn = document.getElementById('clear-all-btn');
+        const gotoBtn = document.getElementById('goto-btn');
+
+        // Initialize the app
+        async function initApp() {
+            // Load JSON data
+            try {
+                const response = await fetch('bhagavad-gita.json');
+                gitaData = await response.json();
+                renderChapterList();
+                loadChapter(currentChapter, currentVerse);
+                loadBookmarks();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                verseContent.innerHTML = `
+                    <div class="verse-container">
+                        <h2>Error Loading Data</h2>
+                        <p>Please make sure the bhagavad-gita.json file is in the correct location.</p>
+                    </div>
+                `;
+            }
+
+            // Set up event listeners
+            setupEventListeners();
+        }
+
+        // Event listeners
+        function setupEventListeners() {
+            // Theme toggle
+            themeToggle.addEventListener('click', toggleTheme);
+
+            // Mobile menu
+            mobileMenuBtn.addEventListener('click', toggleSidebar);
+            overlay.addEventListener('click', closeSidebar);
+
+            // Bookmark menu
+            bookmarkMenu.addEventListener('click', () => {
+                tabs.forEach(tab => tab.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                document.querySelector('[data-tab="bookmarks"]').classList.add('active');
+                document.getElementById('bookmarks-tab').classList.add('active');
+                
+                searchResults.classList.remove('active');
+                
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabName = tab.getAttribute('data-tab');
+                    
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    document.getElementById(`${tabName}-tab`).classList.add('active');
+                    
+                    searchResults.classList.remove('active');
+                });
+            });
+
+            // Search functionality
+            searchInput.addEventListener('input', handleSearchInput);
+            searchButton.addEventListener('click', performSearch);
+            searchInput.addEventListener('keyup', e => {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+
+            // Clear all bookmarks
+            clearAllBtn.addEventListener('click', clearAllBookmarks);
+
+            // Go to verse
+            gotoBtn.addEventListener('click', () => {
+                const selectedVerse = verseSelect.value;
+                loadVerse(currentChapter, selectedVerse);
+            });
+
+            // Handle keyboard navigation
+            document.addEventListener('keydown', e => {
+                if (document.querySelector('[data-tab="reading"]').classList.contains('active')) {
+                    if (e.key === 'ArrowRight') {
+                        navigateVerse('next');
+                    } else if (e.key === 'ArrowLeft') {
+                        navigateVerse('prev');
+                    }
+                }
+            });
+        }
+
+        // Render chapter list
+        function renderChapterList() {
+            if (!gitaData || !gitaData.chapters) return;
+            
+            chapterList.innerHTML = '';
+            
+            gitaData.chapters.forEach((chapter, index) => {
+                const chapterNumber = index + 1;
+                const li = document.createElement('li');
+                li.className = 'chapter-item';
+                li.innerHTML = `
+                    <a href="#" class="chapter-link ${chapterNumber === currentChapter ? 'active' : ''}" data-chapter="${chapterNumber}">
+                        <span class="chapter-number">${chapterNumber}</span>
+                        <div class="chapter-content">
+                            <span class="chapter-title">${chapter.chapter_title}</span>
+                            <span class="chapter-subtitle">${chapter.chapter_label}</span>
+                        </div>
+                    </a>
+                `;
+                
+                chapterList.appendChild(li);
+                
+                li.querySelector('.chapter-link').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const chapterNum = parseInt(e.currentTarget.getAttribute('data-chapter'));
+                    loadChapter(chapterNum, 1);
+                    
+                    // Switch to reading tab
+                    tabs.forEach(tab => tab.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    document.querySelector('[data-tab="reading"]').classList.add('active');
+                    document.getElementById('reading-tab').classList.add('active');
+                    
+                    // Update active chapter
+                    document.querySelectorAll('.chapter-link').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    e.currentTarget.classList.add('active');
+                    
+                    // Close sidebar on mobile
+                    if (window.innerWidth <= 768) {
+                        closeSidebar();
+                    }
+                });
+            });
+        }
+
+        // Load chapter
+        function loadChapter(chapterNum, verseNum) {
+            if (!gitaData || !gitaData.chapters) return;
+            
+            currentChapter = chapterNum;
+            const chapter = gitaData.chapters[currentChapter - 1];
+            
+            if (!chapter) return;
+            
+            // Populate verse dropdown
+            populateVerseSelect(chapter);
+            
+            // Load the specific verse
+            loadVerse(chapterNum, verseNum);
+            
+            // Update sidebar active state
+            document.querySelectorAll('.chapter-link').forEach(link => {
+                link.classList.remove('active');
+                if (parseInt(link.getAttribute('data-chapter')) === chapterNum) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // Populate verse select dropdown
+        function populateVerseSelect(chapter) {
+            if (!chapter || !chapter.verses) return;
+            
+            verseSelect.innerHTML = '';
+            
+            chapter.verses.forEach(verse => {
+                const option = document.createElement('option');
+                option.value = verse.verse_number;
+                option.textContent = `Verse ${verse.verse_number}`;
+                verseSelect.appendChild(option);
+            });
+            
+            // Set current verse as selected
+            verseSelect.value = currentVerse;
+        }
+
+        // Load specific verse
+        function loadVerse(chapterNum, verseNum) {
+            if (!gitaData || !gitaData.chapters) return;
+            
+            const chapter = gitaData.chapters[chapterNum - 1];
+            if (!chapter) return;
+            
+            // Find the verse (handle both number and string verse numbers)
+            let verse = chapter.verses.find(v => 
+                String(v.verse_number) === String(verseNum)
+            );
+            
+            if (!verse) {
+                console.error(`Verse ${verseNum} not found in chapter ${chapterNum}`);
+                return;
+            }
+            
+            currentChapter = chapterNum;
+            currentVerse = verseNum;
+            
+            // Update verse select value
+            verseSelect.value = verseNum;
+            
+            // Render verse content
+            renderVerseContent(chapter, verse);
+        }
+
+        // Render verse content
+        function renderVerseContent(chapter, verse) {
+            const isBookmarked = checkIfBookmarked(currentChapter, verse.verse_number);
+            
+            verseContent.innerHTML = `
+                <div class="chapter-header">
+                    <h1 class="chapter-title-main">${chapter.chapter_title}</h1>
+                    <h2 class="chapter-label">${chapter.chapter_label}</h2>
+                </div>
+                
+                <div class="verse-container" id="verse-${verse.verse_number}">
+                    <div class="verse-badge">Verse ${verse.verse_number}</div>
+                     <button id="bookmark-verse" class="bookmark-btn ${isBookmarked ? 'active' : ''}" style="position:absolute;right:150px;margin-top:4px;">
+                            <i class="fas fa-bookmark"></i>
+                        </button>
+                        
+                        <button id="tts-button" class="control-btn" style="position:absolute;right:35px;">
+                            <i class="fas fa-volume-up"></i>
+                            Read
+                        </button>
+                 
+                    
+                    <p class="verse-text">${verse.text}</p>
+                    
+                    <div class="verse-actions">
+                        <div class="navigation-buttons" style="width: 100%; display: flex; justify-content: space-between;">
+                            <button id="prev-verse" class="nav-btn">
+                                <i class="fas fa-chevron-left"></i>
+                                Previous Verse
+                            </button>
+                            <button id="next-verse" class="nav-btn" >
+                                Next Verse
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        
+                      
+                    </div>
+                    
+                    <div class="verse-extra-controls">
+                       
+                    </div>
+                    
+                    <div class="tts-controls" style="display: none;">
+                        <button id="tts-play" class="tts-btn">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button id="tts-pause" class="tts-btn">
+                            <i class="fas fa-pause"></i>
+                        </button>
+                        <button id="tts-stop" class="tts-btn">
+                            <i class="fas fa-stop"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners
+            document.getElementById('prev-verse').addEventListener('click', () => navigateVerse('prev'));
+            document.getElementById('next-verse').addEventListener('click', () => navigateVerse('next'));
+            document.getElementById('bookmark-verse').addEventListener('click', toggleBookmark);
+            
+            // Text to speech
+            document.getElementById('tts-button').addEventListener('click', toggleTTSControls);
+            document.getElementById('tts-play').addEventListener('click', () => playVerse(verse.text));
+            
+
+
+            document.getElementById('tts-pause').addEventListener('click', pauseSpeech);
+            document.getElementById('tts-stop').addEventListener('click', stopSpeech);
+            
+            // Add animation
+            const verseContainer = document.querySelector('.verse-container');
+            verseContainer.classList.add('pulse');
+            setTimeout(() => {
+                verseContainer.classList.remove('pulse');
+            }, 500);
+        }
+
+        // Navigate to next or previous verse
+        function navigateVerse(direction) {
+            if (!gitaData || !gitaData.chapters) return;
+            
+            const chapter = gitaData.chapters[currentChapter - 1];
+            if (!chapter || !chapter.verses) return;
+            
+            // Find current verse index
+            const currentVerseIndex = chapter.verses.findIndex(v => 
+                String(v.verse_number) === String(currentVerse)
+            );
+            
+            if (currentVerseIndex === -1) return;
+            
+            let nextVerseIndex;
+            
+            if (direction === 'next') {
+                if (currentVerseIndex < chapter.verses.length - 1) {
+                    // Go to next verse in current chapter
+                    nextVerseIndex = currentVerseIndex + 1;
+                    loadVerse(currentChapter, chapter.verses[nextVerseIndex].verse_number);
+                } else if (currentChapter < gitaData.chapters.length) {
+                    // Go to first verse of next chapter
+                    loadChapter(currentChapter + 1, 1);
+                }
+            } else if (direction === 'prev') {
+                if (currentVerseIndex > 0) {
+                    // Go to previous verse in current chapter
+                    nextVerseIndex = currentVerseIndex - 1;
+                    loadVerse(currentChapter, chapter.verses[nextVerseIndex].verse_number);
+                } else if (currentChapter > 1) {
+                    // Go to last verse of previous chapter
+                    const prevChapter = gitaData.chapters[currentChapter - 2];
+                    if (prevChapter && prevChapter.verses && prevChapter.verses.length > 0) {
+                        const lastVerseNum = prevChapter.verses[prevChapter.verses.length - 1].verse_number;
+                        loadChapter(currentChapter - 1, lastVerseNum);
+                    }
+                }
+            }
+        }
+
+        // Toggle theme
+        function toggleTheme() {
+            const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+            
+            if (isDarkMode) {
+                document.body.removeAttribute('data-theme');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Toggle sidebar for mobile
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        // Close sidebar
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        }
+
+        // Handle search input
+        function handleSearchInput(e) {
+            const query = e.target.value.trim();
+            
+            if (query) {
+                // Show search results as you type (for instant feedback)
+                performSearch();
+            } else {
+                // Hide search results when input is empty
+                searchResults.classList.remove('active');
+                
+                // Show tab content
+                document.querySelector('.tab.active').click();
+            }
+        }
+
+        // Perform search
+        function performSearch() {
+            const query = searchInput.value.trim();
+            
+            if (!query || !gitaData || !gitaData.chapters) return;
+            
+            // Clear previous results
+            resultsContainer.innerHTML = '';
+            
+            let results = [];
+            
+            // Search in all chapters
+            gitaData.chapters.forEach((chapter, chapterIndex) => {
+                const chapterNum = chapterIndex + 1;
+                
+                if (chapter && chapter.verses) {
+                    chapter.verses.forEach(verse => {
+                        if (verse.text.toLowerCase().includes(query.toLowerCase())) {
+                            results.push({
+                                chapter: chapterNum,
+                                chapterTitle: chapter.chapter_title,
+                                chapterLabel: chapter.chapter_label,
+                                verse: verse.verse_number,
+                                text: verse.text
+                            });
+                        }
+                    });
+                }
+            });
+            
+            // Show results count
+            document.querySelector('.result-count').textContent = `${results.length} results`;
+            
+            // Display results
+            if (results.length > 0) {
+                results.forEach(result => {
+                    const resultEl = document.createElement('div');
+                    resultEl.className = 'result-card';
+                    
+                    // Highlight matching text
+                    const highlightedText = result.text.replace(
+                        new RegExp(query, 'gi'),
+                        match => `<span class="highlighted">${match}</span>`
+                    );
+                    
+                    resultEl.innerHTML = `
+                        <div class="result-location">
+                            <span class="chapter-info">${result.chapterLabel}</span>
+                            <span class="verse-info">Verse ${result.verse}</span>
+                        </div>
+                        <p class="result-text">${highlightedText}</p>
+                    `;
+                    
+                    resultEl.addEventListener('click', () => {
+                        loadChapter(result.chapter, result.verse);
+                        
+                        // Switch to reading tab
+                        tabs.forEach(tab => tab.classList.remove('active'));
+                        tabContents.forEach(content => content.classList.remove('active'));
+                        
+                        document.querySelector('[data-tab="reading"]').classList.add('active');
+                        document.getElementById('reading-tab').classList.add('active');
+                        
+                        // Hide search results
+                        searchResults.classList.remove('active');
+                    });
+                    
+                    resultsContainer.appendChild(resultEl);
+                });
+                
+                // Show search results
+                searchResults.classList.add('active');
+                
+                // Hide tab content
+                tabContents.forEach(content => content.classList.remove('active'));
+            } else {
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <p>No results found for "${query}"</p>
+                    </div>
+                `;
+                
+                // Show search results
+                searchResults.classList.add('active');
+                
+                // Hide tab content
+                tabContents.forEach(content => content.classList.remove('active'));
+            }
+        }
+
+        // Toggle bookmark
+        function toggleBookmark() {
+            if (!gitaData || !gitaData.chapters) return;
+            
+            const chapter = gitaData.chapters[currentChapter - 1];
+            const verse = chapter.verses.find(v => String(v.verse_number) === String(currentVerse));
+            
+            if (!verse) return;
+            
+            const bookmarkBtn = document.getElementById('bookmark-verse');
+            const isBookmarked = checkIfBookmarked(currentChapter, currentVerse);
+            
+            if (isBookmarked) {
+                // Remove bookmark
+                bookmarks = bookmarks.filter(b => 
+                    !(b.chapter === currentChapter && String(b.verse) === String(currentVerse))
+                );
+                bookmarkBtn.classList.remove('active');
+            } else {
+                // Add bookmark
+                const newBookmark = {
+                    chapter: currentChapter,
+                    verse: currentVerse,
+                    chapterTitle: chapter.chapter_title,
+                    chapterLabel: chapter.chapter_label,
+                    text: verse.text,
+                    date: new Date().toISOString()
+                };
+                
+                bookmarks.push(newBookmark);
+                bookmarkBtn.classList.add('active');
+                bookmarkBtn.classList.add('bounce');
+                
+                setTimeout(() => {
+                    bookmarkBtn.classList.remove('bounce');
+                }, 1000);
+            }
+            
+            // Save bookmarks to local storage
+            saveBookmarks();
+            
+            // Update bookmarks tab
+            renderBookmarks();
+        }
+
+        // Check if verse is bookmarked
+        function checkIfBookmarked(chapter, verse) {
+            return bookmarks.some(b => 
+                b.chapter === chapter && String(b.verse) === String(verse)
+            );
+        }
+
+        // Save bookmarks to local storage
+        function saveBookmarks() {
+            localStorage.setItem('gita-bookmarks', JSON.stringify(bookmarks));
+        }
+
+        // Load bookmarks from local storage
+        function loadBookmarks() {
+            const savedBookmarks = localStorage.getItem('gita-bookmarks');
+            
+            if (savedBookmarks) {
+                bookmarks = JSON.parse(savedBookmarks);
+                renderBookmarks();
+            }
+        }
+
+        // Render bookmarks
+        function renderBookmarks() {
+            if (bookmarks.length === 0) {
+                bookmarksContainer.innerHTML = `
+                    <div class="no-bookmarks">
+                        <i class="fas fa-bookmark" style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem;"></i>
+                        <h3>No bookmarks yet</h3>
+                        <p>Add bookmarks by clicking the bookmark icon when reading verses.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            bookmarksContainer.innerHTML = '';
+            
+            // Sort bookmarks by date (newest first)
+            bookmarks.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            bookmarks.forEach(bookmark => {
+                const bookmarkCard = document.createElement('div');
+                bookmarkCard.className = 'bookmark-card';
+                
+                const date = new Date(bookmark.date);
+                const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                bookmarkCard.innerHTML = `
+                    <div class="bookmark-header">
+                        <span class="bookmark-chapter">${bookmark.chapterLabel}</span>
+                        <span class="bookmark-date">${formattedDate}</span>
+                    </div>
+                    <div class="bookmark-verse">Verse ${bookmark.verse}</div>
+                    <p class="bookmark-text">${bookmark.text}</p>
+                    <div class="bookmark-actions">
+                        <button class="bookmark-goto">
+                            <i class="fas fa-arrow-right"></i>
+                            Go to verse
+                        </button>
+                        <button class="bookmark-remove">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                bookmarkCard.querySelector('.bookmark-goto').addEventListener('click', () => {
+                    loadChapter(bookmark.chapter, bookmark.verse);
+                    
+                    // Switch to reading tab
+                    tabs.forEach(tab => tab.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    document.querySelector('[data-tab="reading"]').classList.add('active');
+                    document.getElementById('reading-tab').classList.add('active');
+                });
+                
+                bookmarkCard.querySelector('.bookmark-remove').addEventListener('click', () => {
+                    removeBookmark(bookmark.chapter, bookmark.verse);
+                    bookmarkCard.classList.add('bounce');
+                    
+                    setTimeout(() => {
+                        bookmarksContainer.removeChild(bookmarkCard);
+                        
+                        if (bookmarks.length === 0) {
+                            renderBookmarks();
+                        }
+                    }, 300);
+                });
+                
+                bookmarksContainer.appendChild(bookmarkCard);
+            });
+        }
+
+        // Remove bookmark
+        function removeBookmark(chapter, verse) {
+            bookmarks = bookmarks.filter(b => 
+                !(b.chapter === chapter && String(b.verse) === String(verse))
+            );
+            
+            // Update bookmark button if on the same verse
+            if (currentChapter === chapter && String(currentVerse) === String(verse)) {
+                const bookmarkBtn = document.getElementById('bookmark-verse');
+                if (bookmarkBtn) {
+                    bookmarkBtn.classList.remove('active');
+                }
+            }
+            
+            // Save bookmarks to local storage
+            saveBookmarks();
+        }
+
+        // Clear all bookmarks
+        function clearAllBookmarks() {
+            if (confirm('Are you sure you want to delete all bookmarks?')) {
+                bookmarks = [];
+                saveBookmarks();
+                renderBookmarks();
+                
+                // Update current verse bookmark button
+                const bookmarkBtn = document.getElementById('bookmark-verse');
+                if (bookmarkBtn) {
+                    bookmarkBtn.classList.remove('active');
+                }
+            }
+        }
+
+        // Text to speech functions
+        function toggleTTSControls() {
+            const ttsControls = document.querySelector('.tts-controls');
+            ttsControls.style.display = ttsControls.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function playVerse(text) {
+            if (speechSynthesis) {
+                if (isSpeaking) {
+                    stopSpeech();
+                }
+                
+                speechUtterance = new SpeechSynthesisUtterance(text);
+                speechUtterance.onend = () => {
+                    isSpeaking = false;
+                    document.getElementById('tts-play').classList.remove('active');
+                };
+                
+                speechSynthesis.speak(speechUtterance);
+                isSpeaking = true;
+                document.getElementById('tts-play').classList.add('active');
+            }
+        }
+
+        function pauseSpeech() {
+            if (speechSynthesis && isSpeaking) {
+                speechSynthesis.pause();
+                isSpeaking = false;
+                document.getElementById('tts-play').classList.remove('active');
+            }
+        }
+
+        function stopSpeech() {
+            if (speechSynthesis) {
+                speechSynthesis.cancel();
+                isSpeaking = false;
+                document.getElementById('tts-play').classList.remove('active');
+            }
+        }
+
+        // Load theme from local storage
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+        }
+
+        // Initialize app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTheme();
+            initApp();
+        });
+    </script>
+</body>
+</html>
