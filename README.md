@@ -118,9 +118,6 @@ Contributions are welcome! If you'd like to improve this project:
 5. Push to the branch (`git push origin feature/improvement`)
 6. Open a Pull Request
 
-## 📄 License
-
-This project is open source and available for educational and personal use. The spiritual content of the Bhagavad Gita is in the public domain.
 
 ## 🙏 Acknowledgments
 
