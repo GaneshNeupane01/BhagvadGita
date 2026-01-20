@@ -1,4 +1,5 @@
 # Bhagavad Gita - Interactive Reader
+# Project is live at https://ganeshneupane01.github.io/BhagvadGita/
 
 An elegant, interactive web application for reading and exploring the Bhagavad Gita. This project provides a modern, user-friendly interface to read, search, and bookmark verses from the sacred Hindu scripture.
 
