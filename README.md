@@ -3,6 +3,8 @@
 
 An elegant, interactive web application for reading and exploring the Bhagavad Gita. This project provides a modern, user-friendly interface to read, search, and bookmark verses from the sacred Hindu scripture.
 
+![Demo](UI_Glance.png)
+
 ## ✨ Features
 
 - **📖 Complete Text**: All 18 chapters with verses from the Bhagavad Gita
